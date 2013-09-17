@@ -1,0 +1,118 @@
+a:12:{s:8:"encoding";s:5:"UTF-8";s:5:"title";s:18:"osCommerce Add-Ons";s:4:"link";s:25:"http://www.oscommerce.com";s:11:"description";s:29:"osCommerce, Sell With Emotion";s:8:"language";s:2:"en";s:9:"copyright";s:29:"Copyright (c) 2012 osCommerce";s:14:"managingEditor";s:19:"hpdl@oscommerce.com";s:11:"image_title";s:10:"osCommerce";s:9:"image_url";s:53:"http://www.oscommerce.com/images/oscommerce_88x31.gif";s:10:"image_link";s:25:"http://www.oscommerce.com";s:5:"items";a:5:{i:0;a:4:{s:5:"title";s:16:"SwipeHQ Checkout";s:4:"link";s:38:"http://addons.oscommerce.com/info/8684";s:11:"description";s:19:"Multi-region bugfix";s:7:"pubDate";s:31:"Tue, 17 Sep 2013 02:57:12 +0200";}i:1;a:4:{s:5:"title";s:54:"Auto Out Of Stock CSS Image Overlay for osCommerce X.X";s:4:"link";s:38:"http://addons.oscommerce.com/info/8909";s:11:"description";s:4929:"Unfortunately, The function I wrote for Kiss Thumbnailer proved to be a piece of shitty code.<br />
+<br />
+This Code should work (it did for me anyway..).<br />
+<br />
+I'm going to be lazy today and give you the instructions here, I hope you won't get mad at me.<br />
+<br />
+Instructions have been modified in the package as well. FULL PACKAGE<br />
+<br />
+<br />
+In ./includes/functions/html_output.php, replace the tep_image and the tep_image_legacy functions with the code below.<br />
+<br />
+This is ONLY if you have the Kiss Thumbnailer Add-On installed.<br />
+<br />
+<br />
+/* Copy me, please */<br />
+	// The HTML image wrapper function<br />
+	   // New HTML image wrapper function modified for KISS Image Thumbnailer by FWR Media<br />
+	  function tep_image($src, $alt = '', $width = '', $height = '', $parameters = '', $products_id = null, $stock_check = '') {<br />
+	   // If width and height are not numeric then we can't do anything with it<br />
+	   if ( !is_numeric ( $width ) || !is_numeric ( $height ) ) return tep_image_legacy( $src, $alt, $width, $height, $parameters, $products_id, $stock_check );<br />
+	   require_once DIR_WS_MODULES . 'kiss_image_thumbnailer/classes/Image_Helper.php';<br />
+	   $attributes = array( 'alt' =&gt; $alt, 'width' =&gt; $width, 'height' =&gt; $height );<br />
+	   $image = new Image_Helper( array( 'src'	=&gt; $src,<br />
+	   'attributes'	 =&gt; $attributes,<br />
+	   'parameters'	 =&gt; $parameters,<br />
+	   'default_missing_image' =&gt; DIR_WS_IMAGES . 'no_image_available_150_150.gif',<br />
+	   'isXhtml'	=&gt; true,<br />
+	   'thumbs_dir_path'	=&gt; DIR_WS_MODULES . 'kiss_image_thumbnailer/thumbs/',<br />
+	   'thumb_quality' =&gt; 75,<br />
+	   'thumb_background_rgb' =&gt; array( 'red'   =&gt; 255,<br />
+	   'green' =&gt; 255,<br />
+	   'blue'  =&gt; 255 ) ) );<br />
+	   if ( false === $image_assembled = $image-&gt;assemble() ) {<br />
+				return tep_image_legacy( $src, $alt, $width, $height, $parameters, $products_id, $stock_check );<br />
+	   }<br />
+			<br />
+			$image = '';<br />
+		  // Check stock and add Out Of Stock<br />
+			if (!is_numeric($stock_check))<br />
+			 	$stock_check = tep_get_products_stock($products_id);<br />
+			if ($stock_check &lt;= 0) {<br />
+			$image .= '&lt;div class=&quot;image-stock&quot;&gt;';<br />
+			$image .= $image_assembled;<br />
+			$image .= '&lt;h2&gt;&lt;span&gt;'.ENTRY_OUT_OF_STOCK.'&lt;/span&gt;&lt;/h2&gt;&lt;/div&gt;';<br />
+			return $image;<br />
+		   }<br />
+<br />
+	   return $image_assembled;<br />
+	  } // end function<br />
+	////<br />
+	// The HTML image wrapper function<br />
+	function tep_image_legacy($src, $alt = '', $width = '', $height = '', $parameters = '', $products_id = null, $stock_check = '') {<br />
+		if ( (empty($src) || ($src == DIR_WS_IMAGES)) &amp;&amp; (IMAGE_REQUIRED == 'false') ) {<br />
+			return false;<br />
+		}<br />
+		$image = '';<br />
+		$this_product_out_of_stock = 0;<br />
+		// Check stock and add Out Of Stock<br />
+		if (tep_not_null($products_id)) {<br />
+			if (!is_numeric($stock_check))<br />
+				$stock_check = tep_get_products_stock($products_id);<br />
+			if ($stock_check &lt;= 0) {<br />
+				$this_product_out_of_stock = 1;<br />
+				$image .= '&lt;div class=&quot;image-stock&quot;&gt;';<br />
+			}<br />
+		}<br />
+		// alt is added to the img tag even if it is null to prevent browsers from outputting<br />
+		// the image filename as default<br />
+		$image .= '&lt;img src=&quot;' . tep_output_string($src) . '&quot; alt=&quot;' . tep_output_string($alt) . '&quot;';<br />
+		if (tep_not_null($alt)) {<br />
+			$image .= ' title=&quot; ' . tep_output_string($alt) . ' &quot;';<br />
+		}<br />
+		if ( (CONFIG_CALCULATE_IMAGE_SIZE == 'true') &amp;&amp; (empty($width) || empty($height)) ) {<br />
+			if ($image_size = @getimagesize($src)) {<br />
+				if (empty($width) &amp;&amp; tep_not_null($height)) {<br />
+					$ratio = $height / $image_size[1];<br />
+					$width = intval($image_size[0] * $ratio);<br />
+				} elseif (tep_not_null($width) &amp;&amp; empty($height)) {<br />
+					$ratio = $width / $image_size[0];<br />
+					$height = intval($image_size[1] * $ratio);<br />
+				} elseif (empty($width) &amp;&amp; empty($height)) {<br />
+					$width = $image_size[0];<br />
+					$height = $image_size[1];<br />
+				}<br />
+			} elseif (IMAGE_REQUIRED == 'false') {<br />
+				return false;<br />
+			}<br />
+		}<br />
+		if (tep_not_null($width) &amp;&amp; tep_not_null($height)) {<br />
+			$image .= ' width=&quot;' . tep_output_string($width) . '&quot; height=&quot;' . tep_output_string($height) . '&quot;';<br />
+		}<br />
+		if (tep_not_null($parameters)) $image .= ' ' . $parameters;<br />
+		$image .= ' /&gt;';<br />
+		// Check stock and add Out Of Stock<br />
+		if ($this_product_out_of_stock == 1) {<br />
+			$image .= '&lt;h2&gt;&lt;span&gt;'.ENTRY_OUT_OF_STOCK.'&lt;/span&gt;&lt;/h2&gt;&lt;/div&gt;';<br />
+		}<br />
+		return $image;<br />
+	}<br />";s:7:"pubDate";s:31:"Tue, 17 Sep 2013 02:00:47 +0200";}i:2;a:4:{s:5:"title";s:58:"Marketing Platform - Facebook Store & Data Feed Management";s:4:"link";s:38:"http://addons.oscommerce.com/info/8720";s:11:"description";s:115:"------------------ Latest Changes ----------------<br />
+<br />
+- Configuration module upgraded, setup wizard added";s:7:"pubDate";s:31:"Mon, 16 Sep 2013 17:13:52 +0200";}i:3;a:4:{s:5:"title";s:29:"iPayy - Carrier based payment";s:4:"link";s:38:"http://addons.oscommerce.com/info/8912";s:11:"description";s:387:"Missing revenue from customers without credit card or customers not willing to share credit card details?<br />
+<br />
+iPayy is the solution for you!<br />
+<br />
+Features<br />
+MicroPayment<br />
+1 Step Payment<br />
+Seamless Integration<br />
+Multiple Mobile Carriers<br />
+Automatic Discovery of Details<br />
+<br />
+Visit: https://www.ipayy.com or https://github.com/ipayy/oscommerce";s:7:"pubDate";s:31:"Mon, 16 Sep 2013 14:50:17 +0200";}i:4;a:4:{s:5:"title";s:19:"AjaxCheckoutAddress";s:4:"link";s:38:"http://addons.oscommerce.com/info/8911";s:11:"description";s:869:"This a light-weight add-on for changing shipping/billing address directly in Checkout Confirm page.<br />
+<br />
+If you use checkout payment modules like PayPal Express checkout, which obtain address from PayPal website, or using one page checkout, they would skip Checkout Shipping page and bring customers into Checkout Confirm page direct. Customers who want to change default address have to jump backward to Checkout Shipping page and forward causing bad user experience. In this case Ajax can greatly help and allow customers staying in same page with less clicks. A alert would appear if customers didn't confirm the address before confirming the order.<br />
+<br />
+Note: It would only change the address of the orders, not the address in customers' address books.<br />
+<br />
+Support forum: http://forums.oscommerce.com/topic/394493-addon-ajaxcheckoutaddress/";s:7:"pubDate";s:31:"Mon, 16 Sep 2013 08:51:09 +0200";}}s:11:"items_count";i:5;}
