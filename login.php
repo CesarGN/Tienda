@@ -5,7 +5,7 @@
   osCommerce, Open Source E-Commerce Solutions
   http://www.oscommerce.com
 
-  Copyright (c) 2012 osCommerce
+  Copyright (c) 2010 osCommerce
 
   Released under the GNU General Public License
 */
@@ -57,7 +57,7 @@
         tep_session_register('customer_country_id');
         tep_session_register('customer_zone_id');
 
-        tep_db_query("update " . TABLE_CUSTOMERS_INFO . " set customers_info_date_of_last_logon = now(), customers_info_number_of_logons = customers_info_number_of_logons+1, password_reset_key = null, password_reset_date = null where customers_info_id = '" . (int)$customer_id . "'");
+        tep_db_query("update " . TABLE_CUSTOMERS_INFO . " set customers_info_date_of_last_logon = now(), customers_info_number_of_logons = customers_info_number_of_logons+1 where customers_info_id = '" . (int)$customer_id . "'");
 
 // reset session token
         $sessiontoken = md5(tep_rand() . tep_rand() . tep_rand() . tep_rand());
@@ -92,8 +92,8 @@
     echo $messageStack->output('login');
   }
 ?>
-
-<div class="contentContainer" style="width: 45%; float: left;">
+<div class="contentContainer" style="height:220px">
+<div style="width: 44%; float: left;">
   <h2><?php echo HEADING_NEW_CUSTOMER; ?></h2>
 
   <div class="contentText">
@@ -104,7 +104,7 @@
   </div>
 </div>
 
-<div class="contentContainer" style="width: 45%; float: left; border-left: 1px dashed #ccc; padding-left: 3%; margin-left: 3%;">
+<div  style="width: 44%; float: left; border-left: 1px dashed #D63034; padding-left: 3%; margin-left: 3%;">
   <h2><?php echo HEADING_RETURNING_CUSTOMER; ?></h2>
 
   <div class="contentText">
@@ -130,7 +130,7 @@
     </form>
   </div>
 </div>
-
+</div>
 <?php
   require(DIR_WS_INCLUDES . 'template_bottom.php');
   require(DIR_WS_INCLUDES . 'application_bottom.php');

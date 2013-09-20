@@ -144,7 +144,7 @@
 
       $data = '<div class="ui-widget infoBoxContainer">' .
               '  <div class="ui-widget-header infoBoxHeading">' . MODULE_BOXES_CATEGORIES_BOX_TITLE . '</div>' .
-              '  <div class="ui-widget-content infoBoxContents">' . $categories_string . '</div>' .
+              '  <div class="ui-widget-content infoBoxContents_cat">' . $categories_string . '</div>' .
               '</div>';
 
       return $data;
